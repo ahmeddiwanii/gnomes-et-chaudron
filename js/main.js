@@ -8,25 +8,63 @@
 
   const onScroll = () => {
     if (!header) return;
+    if (document.body.classList.contains("nav-open")) return;
     header.classList.toggle("is-scrolled", window.scrollY > 40);
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
+  const setNavOpen = (open) => {
+    if (!navToggle || !siteNav || !header) return;
+    navToggle.setAttribute("aria-expanded", String(open));
+    navToggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+    siteNav.classList.toggle("is-open", open);
+    siteNav.setAttribute("aria-hidden", open ? "false" : "true");
+    if (open) siteNav.removeAttribute("inert");
+    else siteNav.setAttribute("inert", "");
+    header.classList.toggle("is-open", open);
+    document.body.classList.toggle("nav-open", open);
+  };
+
+  // Mobile panel starts closed; desktop keeps nav interactive via resize handler below.
+  const syncNavMode = () => {
+    const mobile = window.innerWidth <= 768;
+    if (!mobile) {
+      siteNav?.classList.remove("is-open");
+      siteNav?.removeAttribute("aria-hidden");
+      siteNav?.removeAttribute("inert");
+      header?.classList.remove("is-open");
+      document.body.classList.remove("nav-open");
+      navToggle?.setAttribute("aria-expanded", "false");
+      navToggle?.setAttribute("aria-label", "Ouvrir le menu");
+    } else if (navToggle?.getAttribute("aria-expanded") !== "true") {
+      siteNav?.setAttribute("aria-hidden", "true");
+      siteNav?.setAttribute("inert", "");
+    }
+  };
+  syncNavMode();
+
   if (navToggle && siteNav) {
     navToggle.addEventListener("click", () => {
       const open = navToggle.getAttribute("aria-expanded") === "true";
-      navToggle.setAttribute("aria-expanded", String(!open));
-      siteNav.classList.toggle("is-open", !open);
-      document.body.style.overflow = open ? "" : "hidden";
+      setNavOpen(!open);
     });
 
     siteNav.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        navToggle.setAttribute("aria-expanded", "false");
-        siteNav.classList.remove("is-open");
-        document.body.style.overflow = "";
-      });
+      link.addEventListener("click", () => setNavOpen(false));
+    });
+
+    const brand = document.querySelector(".brand-mark");
+    if (brand) {
+      brand.addEventListener("click", () => setNavOpen(false));
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setNavOpen(false);
+    });
+
+    window.addEventListener("resize", () => {
+      syncNavMode();
     });
   }
 
@@ -69,7 +107,6 @@
     }
   }
 
-  /* Amber ink motes over parchment */
   const canvas = document.getElementById("moteCanvas");
   if (!canvas || reduced) return;
 
