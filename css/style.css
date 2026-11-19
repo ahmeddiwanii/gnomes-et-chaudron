@@ -791,36 +791,39 @@ body.nav-open {
 
 .hero__scroll {
   position: absolute;
-  bottom: 0.55rem;
+  bottom: 0.85rem;
   left: 50%;
   z-index: 3;
-  width: 20px;
-  height: 30px;
-  border: 1px solid rgba(28, 20, 14, 0.28);
-  border-radius: 11px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
   transform: translateX(-50%);
   display: grid;
-  place-items: start center;
-  padding-top: 5px;
+  place-items: center;
 }
 
 .hero__scroll span {
-  width: 4px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--ember);
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-right: 2px solid var(--ember);
+  border-bottom: 2px solid var(--ember);
+  border-radius: 0;
+  background: transparent;
+  transform: rotate(45deg);
   animation: scrollDot 1.6s ease-in-out infinite;
 }
 
 @keyframes scrollDot {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(45deg);
     opacity: 1;
   }
   50% {
-    transform: translateY(12px);
-    opacity: 0.3;
+    transform: translateY(8px) rotate(45deg);
+    opacity: 0.35;
   }
 }
 
@@ -1211,6 +1214,9 @@ body.nav-open {
   opacity: 0;
   transform: translateX(30px);
   transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  background: none;
+  padding: 0;
+  box-shadow: none;
 }
 
 .animations__figure.is-in {
