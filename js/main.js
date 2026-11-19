@@ -14,58 +14,62 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
+  const isMobileNav = () => window.matchMedia("(max-width: 768px)").matches;
+
   const setNavOpen = (open) => {
     if (!navToggle || !siteNav || !header) return;
     navToggle.setAttribute("aria-expanded", String(open));
     navToggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
     siteNav.classList.toggle("is-open", open);
-    siteNav.setAttribute("aria-hidden", open ? "false" : "true");
-    if (open) siteNav.removeAttribute("inert");
-    else siteNav.setAttribute("inert", "");
     header.classList.toggle("is-open", open);
     document.body.classList.toggle("nav-open", open);
+    if (isMobileNav()) {
+      siteNav.setAttribute("aria-hidden", open ? "false" : "true");
+    } else {
+      siteNav.removeAttribute("aria-hidden");
+    }
   };
 
-  // Mobile panel starts closed; desktop keeps nav interactive via resize handler below.
   const syncNavMode = () => {
-    const mobile = window.innerWidth <= 768;
-    if (!mobile) {
-      siteNav?.classList.remove("is-open");
-      siteNav?.removeAttribute("aria-hidden");
-      siteNav?.removeAttribute("inert");
-      header?.classList.remove("is-open");
+    if (!siteNav || !navToggle || !header) return;
+    if (!isMobileNav()) {
+      setNavOpen(false);
+      siteNav.removeAttribute("aria-hidden");
+    } else if (navToggle.getAttribute("aria-expanded") !== "true") {
+      siteNav.classList.remove("is-open");
+      siteNav.setAttribute("aria-hidden", "true");
+      header.classList.remove("is-open");
       document.body.classList.remove("nav-open");
-      navToggle?.setAttribute("aria-expanded", "false");
-      navToggle?.setAttribute("aria-label", "Ouvrir le menu");
-    } else if (navToggle?.getAttribute("aria-expanded") !== "true") {
-      siteNav?.setAttribute("aria-hidden", "true");
-      siteNav?.setAttribute("inert", "");
     }
   };
   syncNavMode();
 
   if (navToggle && siteNav) {
-    navToggle.addEventListener("click", () => {
+    navToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const open = navToggle.getAttribute("aria-expanded") === "true";
       setNavOpen(!open);
     });
 
     siteNav.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => setNavOpen(false));
+      link.addEventListener("click", () => {
+        if (isMobileNav()) setNavOpen(false);
+      });
     });
 
     const brand = document.querySelector(".brand-mark");
     if (brand) {
-      brand.addEventListener("click", () => setNavOpen(false));
+      brand.addEventListener("click", () => {
+        if (isMobileNav()) setNavOpen(false);
+      });
     }
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") setNavOpen(false);
     });
 
-    window.addEventListener("resize", () => {
-      syncNavMode();
-    });
+    window.addEventListener("resize", syncNavMode);
   }
 
   const revealEls = document.querySelectorAll("[data-reveal], .delight, .animations__figure, .gallery");
