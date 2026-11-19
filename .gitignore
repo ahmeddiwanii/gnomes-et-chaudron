@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+*.log
+.cursor/
+.vscode/
+node_modules/
+.env
+.env.*
+assets/_shot*.jpg
+scripts/
